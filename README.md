@@ -1,9 +1,14 @@
 @mainpage Attitude Determination and Control System main page
 
-# CubeSat Attitude Determination and Control System
+# CubeSat Attitude Determination System
 
 Developed by Remy Chatel for the University of Glasgow in the context of
 a MSc in Electrical and Electronical Engineering.
+
+# CubeSat Attitude Detumbling System
+
+Developed by Patrik Pauliny for the University of Glasgow in the context of
+a MEng in Mechatronics.
 
 ## Description
 ### Overview of the project
@@ -25,6 +30,23 @@ The output is the rotation required to go from a reference frame to the body fra
 of the spacecraft. There are different possible ways to represent rotation, but
 usually, the output is a 7-elements state vector containing the rotation quaternion
 and the angular rates.
+
+#### The attitude detumbling task
+The attitude control of a rigid body refers to the ability to intentionally rotate 
+the rigid body.This ability is crucial for spacecrafts since number of subsystems 
+can depend on accurate attitude. 
+
+First step of attitude control task is performance of detumbling. When CubeSats are 
+ejected in to space they suffer from uncontrolled rotation. This motion can prevent 
+correct operation of some subsystem what can ultimately make the spacecraft useless.
+ 
+
+The attitude detumbling process is the following: measurement and digital signal processing,
+B-dot control signals generation, torquing. The inputs are measurements of the magnetometer 
+and IMU data. 
+
+The outputs are control signals for three perpendicularly acting magnetorquers. Additional data 
+like angular rates, magnetic field measurements are also outputted for debugging purposes.                
 
 #### ADS Core
 This project developed an inexpensive Attitude Determination System for CubeSat
@@ -55,11 +77,28 @@ and their documentation can be found in the Modules section
 
 \htmlonly<a href="modules.html">List of modules</a>\endhtmlonly
 
+#### Detumbling
+This project developed a detumbling system based on magnetorquers and B-dot control 
+algorithm. It relies on the ADS software modules and hardware. Only additional requirements
+are the magnetroquers and adequate electronics for their driving. The system relies on 
+the magnetometer measurements that are filtered using a IIR filter. A derivative of 
+magnetic field is then found and used in accordance with B-dot control method. Finally 
+the control signals and other measurements are transmitted using Bluetooth.     
+
+### How to use it
+Once all components are connected the B-dot controller has to be tuned appropriately. Most 
+reliable method is experimental testing. Gains for the controller can be changed in 
+Detumbling_Test.cpp. Additionally the IIR Filter coefficients can be also modified in the 
+same file if required. 
+
+No additional modules are required compared to the ADS. 
+
 ### Bill of material
 - Nucleo32L432KC board
 - MPU9150 or MPU9250 IMU
 - Three analogue photodiodes (OPT101 for instance)
 - eventually Solar eclipse glasses to pry out the filters
+- 3 magnetorquers and adequate driving circuit 
 
 ## Dependencies and Compatibility
 This project needs <std::cmath>, <std::vector> and the ARM Mbed

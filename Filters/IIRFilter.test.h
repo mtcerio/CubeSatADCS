@@ -1,25 +1,18 @@
 /**
- * @file Filters.test.h
+ * @file IIRFilter.test.h
  * @version 1.0
- * @date 2019
- * @author Remy CHATEL
+ * @date 2020
+ * @author Remy CHATEL & Patrik PAULINY
  * @copyright GNU Public License v3.0
  * 
  * @brief
- * Test framework library for the Filters module
+ * Test framework library for the IIRFilter class
  * 
  * @details
  * # Description
- * This library provides a test function for the Filters module and also
+ * This library provides a test function for the IIRFilter class and also
  * serves as an example program for the module.
- * 
- * To generate the test vectors, use the Python script provided:
- * - Execute the testèvector_generator.py to create the vectors
- * - Remove the unwanted commas at the begining and end of the generated files
- * - Compile and upload the program in the board
- * - Set the correct COM port in test_serial_output.py
- * - Hold the reset button on the board
- * - Execute FilterTestSerial.py then release the reset button
+ *
  * 
  * @see Filters.h
  * 
@@ -34,7 +27,7 @@
  * to make best use of the Floating Point Unit of 32-bits microcontrollers.
  * 
  * # License
- * <b>(C) Copyright 2019 Remy CHATEL</b>
+ * <b>(C) Copyright 2020 Patrik PAULINY</b>
  * 
  * Licensed Under  GPL v3.0 License
  * http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,19 +38,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FILTERS_TEST_H
-#define FILTERS_TEST_H
-#include "mbed.h"
-#include "Filters.h"
 
+#ifndef IIRFILTERS_TEST_H
+#define IIRFILTERS_TEST_H
+#include "mbed.h"
+#include "Matrix.h"
+#include "MPU9150.h"
+#include "Filters.h"
 /**
  * @brief
- * Test of the Filters module
+ * Test of the IIRFilter class 
  * 
- * Tests the Filters module by importing attitude data and angular rates generated
- * by a Python script, and processing them. The output is sent back for comparison.
+ * Tests the IIRFilters module by making measurements of magnetic field using MPU9150 
+ * and printing them to the serial monitor. Filtered and not filteraed data can be stored 
+ * and compared to provide also qualitative feedback. 
  * 
- * return 1 if successful, 0 otherwise
  */
-int KalmanFilterTest();
+int IIRFilterTest();
+
 #endif

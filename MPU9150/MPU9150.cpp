@@ -176,7 +176,7 @@
     void MPU9150::initAK8975A() {
         uint8_t rawData[3];  // x/y/z gyro register data stored here
         writeByte(AK8975A_ADDRESS, AK8975A_CNTL, 0b0110); // Continuous
-        wait(0.01);
+        wait_us(10000);
         // writeByte(AK8975A_ADDRESS, AK8975A_CNTL, 0x0F); // Enter Fuse ROM access mode
         // wait(0.01);
         readBytes(AK8975A_ADDRESS, AK8975A_ASAX, 3, &rawData[0]);  // Read the x-, y-, and z-axis calibration values
@@ -188,12 +188,12 @@
     uint8_t MPU9150::initIMU(uint8_t acc_scale, uint8_t gyr_scale){
         uint8_t whoami = readByte(MPU9150_ADDRESS, WHO_AM_I_MPU9150);
         if (whoami == 0x73 || whoami == 0x68) {   // WHO_AM_I should be 0x68 or 0x73
-            wait(1);
+            wait_us(1000000);
             MPU9150SelfTest();
-            wait(0.5);
+            wait_us(500000);
             resetMPU9150(); // Reset registers to default in preparation for device calibration
             calibrateMPU9150(); // Calibrate gyro and accelerometers, load biases in bias registers  
-            wait(0.5);
+             wait_us(500000);
             initMPU9150(acc_scale, gyr_scale); // Initialize device for active mode read of accelerometer, gyroscope, and temperature
             initAK8975A(); // Initialize device for active mode read of magnetometer
             return whoami;
@@ -206,14 +206,14 @@
     void MPU9150::resetMPU9150() {
         // reset device
         writeByte(MPU9150_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit; toggle reset device
-        wait(0.1);
+        wait_us(100000);
     }
 
     void MPU9150::initMPU9150(uint8_t acc_scale, uint8_t gyr_scale) {  
         // Initialize MPU9150 device
         // wake up device
         writeByte(MPU9150_ADDRESS, PWR_MGMT_1, 0x00); // Clear sleep mode bit (6), enable all sensors 
-        wait(0.1); // Delay 100 ms for PLL to get established on x-axis gyro; should check for PLL ready interrupt  
+        wait_us(100000); // Delay 100 ms for PLL to get established on x-axis gyro; should check for PLL ready interrupt  
 
         // get stable time source
         writeByte(MPU9150_ADDRESS, PWR_MGMT_1, 0x01);  // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
@@ -266,13 +266,13 @@
         
         // reset device, reset all registers, clear gyro and accelerometer bias registers
         writeByte(MPU9150_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit; toggle reset device
-        wait(0.1);  
+        wait_us(100000);  
         
         // get stable time source
         // Set clock source to be PLL with x-axis gyroscope reference, bits 2:0 = 001
         writeByte(MPU9150_ADDRESS, PWR_MGMT_1, 0x01);  
         writeByte(MPU9150_ADDRESS, PWR_MGMT_2, 0x00); 
-        wait(0.2);
+        wait_us(200000);
         
         // Configure device for bias calculation
         writeByte(MPU9150_ADDRESS, INT_ENABLE, 0x00);   // Disable all interrupts
@@ -281,7 +281,7 @@
         writeByte(MPU9150_ADDRESS, I2C_MST_CTRL, 0x00); // Disable I2C master
         writeByte(MPU9150_ADDRESS, USER_CTRL, 0x00);    // Disable FIFO and I2C master modes
         writeByte(MPU9150_ADDRESS, USER_CTRL, 0x0C);    // Reset FIFO and DMP
-        wait(0.015);
+        wait_us(15000);
         
         // Configure MPU9150 gyro and accelerometer for bias calculation
         writeByte(MPU9150_ADDRESS, CONFIG, 0x01);      // Set low-pass filter to 188 Hz
@@ -295,7 +295,7 @@
         // Configure FIFO to capture accelerometer and gyro data for bias calculation
         writeByte(MPU9150_ADDRESS, USER_CTRL, 0x40);   // Enable FIFO  
         writeByte(MPU9150_ADDRESS, FIFO_EN, 0x78);     // Enable gyro and accelerometer sensors for FIFO (max size 1024 bytes in MPU9150)
-        wait(0.08); // accumulate 80 samples in 80 milliseconds = 960 bytes
+        wait_us(80000); // accumulate 80 samples in 80 milliseconds = 960 bytes
 
         // At end of sample accumulation, turn off FIFO sensor read
         writeByte(MPU9150_ADDRESS, FIFO_EN, 0x00);        // Disable gyro and accelerometer sensors for FIFO
@@ -411,7 +411,7 @@
         // Configure the accelerometer for self-test
         writeByte(MPU9150_ADDRESS, ACCEL_CONFIG, 0xF0); // Enable self test on all three axes and set accelerometer range to +/- 8 g
         writeByte(MPU9150_ADDRESS, GYRO_CONFIG,  0xE0); // Enable self test on all three axes and set gyro range to +/- 250 degrees/s
-        wait(0.25);  // Delay a while to let the device execute the self-test
+        wait_us(250000);  // Delay a while to let the device execute the self-test
         rawData[0] = readByte(MPU9150_ADDRESS, SELF_TEST_X); // X-axis self-test results
         rawData[1] = readByte(MPU9150_ADDRESS, SELF_TEST_Y); // Y-axis self-test results
         rawData[2] = readByte(MPU9150_ADDRESS, SELF_TEST_Z); // Z-axis self-test results
@@ -445,7 +445,7 @@
             this->getAccel(val_acc[i]);
             this->getGyro(val_gyr[i]);
             this->getMag(val_mag[i]);
-            wait_ms(interval);
+            wait_us(interval*1000);
         }
 
         for(int i = 0; i < N; i++){

@@ -156,3 +156,56 @@ using namespace Filters;
 
         return q_predict;
     }
+
+    // IIR FIlter 
+
+    // Constructor
+    IIRFilter::IIRFilter(){
+        AccumulatorIN = Matrix::zeros(3,1);
+        AccumulatorOUT = Matrix::zeros(3,1);
+        Dat_Input = Matrix::zeros(3,1);
+        Delay1 = Matrix::zeros(3,1);    
+        Delay2 = Matrix::zeros(3,1);
+
+        float B0;
+        float B1;
+        float B2;
+        float A1;
+        float A2; 
+    }
+
+    IIRFilter::IIRFilter(float A1, float A2, float B0, float B1, float B2){
+        AccumulatorIN = Matrix::zeros(3,1);
+        AccumulatorOUT = Matrix::zeros(3,1);
+        Dat_Input = Matrix::zeros(3,1);
+        Delay1 = Matrix::zeros(3,1);    
+        Delay2 = Matrix::zeros(3,1);
+        
+        _B0 = B0;
+        _B1 = B1;
+        _B2 = B2;
+        _A1 = A1;
+        _A2 = A2;
+    }
+
+    void IIRFilter::ResetFilter(){
+        AccumulatorIN = Matrix::zeros(3,1);
+        AccumulatorOUT = Matrix::zeros(3,1);
+        Dat_Input = Matrix::zeros(3,1);
+        Delay1 = Matrix::zeros(3,1);    
+        Delay2 = Matrix::zeros(3,1);
+    }
+
+    Matrix IIRFilter::getAccumulatorIN() const {return AccumulatorIN;}
+    Matrix IIRFilter::getDelay1() const {return Delay1;}
+    Matrix IIRFilter::getDelay2() const {return Delay2;}
+
+    Matrix IIRFilter::Filter(Matrix InPut, Matrix AccumulatorIN_previous, Matrix Delay1_previous, Matrix Delay2_previous){
+        Dat_Input = InPut;
+        Delay1 = AccumulatorIN_previous;
+        Delay2 = Delay1_previous; 
+
+        AccumulatorIN =  Dat_Input - Delay1*_A1 - Delay2*_A2;
+        AccumulatorOUT = AccumulatorIN*_B0 + Delay1*_B1 + Delay2*_B2;
+        return AccumulatorOUT;
+        }

@@ -1,34 +1,29 @@
 /**
- * @file Filters.test.h
+ * @file MPU9150.test.h
  * @version 1.0
  * @date 2019
  * @author Remy CHATEL
  * @copyright GNU Public License v3.0
  * 
  * @brief
- * Test framework library for the Filters module
+ * Test framework library for the MPU9150 module
  * 
  * @details
  * # Description
- * This library provides a test function for the Filters module and also
+ * This library provides a test function for the MPU9150 module and also
  * serves as an example program for the module.
  * 
- * To generate the test vectors, use the Python script provided:
- * - Execute the testèvector_generator.py to create the vectors
- * - Remove the unwanted commas at the begining and end of the generated files
- * - Compile and upload the program in the board
- * - Set the correct COM port in test_serial_output.py
- * - Hold the reset button on the board
- * - Execute FilterTestSerial.py then release the reset button
+ * To use it, connect the the IMU SDA to the board's SDA1 and the SCL to
+ * the board's SCL1. Then connect power and ground. 
+ *
+ * No pull-ups are required for the Nucleo32 (and probably same with Nucleo64)
+ * as the board have built-in pull-ups.
  * 
- * @see Filters.h
+ * @see MPU9150.h
  * 
  * # Dependencies and data type
  * This library depends on:
  * - the Mbed framework (https://www.mbed.com/en/)
- * - <std::cmath> in order to perform cos, sin and sqrt operations.
- * - <std::vector> for the matrix algebra
- * - "Matrix.h" for matrices implementation
  * 
  * @attention This library uses float (32-bits) and not double (64-bits)
  * to make best use of the Floating Point Unit of 32-bits microcontrollers.
@@ -45,19 +40,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef FILTERS_TEST_H
-#define FILTERS_TEST_H
+#ifndef DETUMBLING_TEST_H
+#define DETUMBLING_TEST_H
 #include "mbed.h"
+#include "MPU9150.h"
+#include "Matrix.h"
+#include "AstroLib.h"
+#include "Estimators.h"
 #include "Filters.h"
 
 /**
  * @brief
- * Test of the Filters module
- * 
- * Tests the Filters module by importing attitude data and angular rates generated
- * by a Python script, and processing them. The output is sent back for comparison.
- * 
+ * Test of the Sun Sensor and other sensors
  * return 1 if successful, 0 otherwise
  */
-int KalmanFilterTest();
+int DetumblingTest();
 #endif

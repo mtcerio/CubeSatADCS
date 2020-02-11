@@ -2,8 +2,8 @@
  * @file   Filters.h
  * @defgroup FiltersGr Filters
  * @version 1.0
- * @date 2019
- * @author Remy CHATEL
+ * @date 2020
+ * @author Remy CHATEL & Patrik PAULINY
  * @copyright GNU Public License v3.0
  * 
  * @brief
@@ -12,7 +12,7 @@
  * @details
  * # Description
  * A set of algorithm to filter the attitude quaternion of a spacecraft. It implements
- * a 7 state (quaternion and angular rates) Extended Kalman Filter.
+ * a 7 state (quaternion and angular rates) Extended Kalman Filter and a Infinite Impulse Response (IIR) filter. 
  * 
  * It can be use to filter out noise in space applications for instance in Atitude
  * Determination and Control Systems. 
@@ -54,6 +54,24 @@
  * the attitude quaternion, @f$\epsilon@f$ the vector part of the quaternion, @f$\omega@f$
  * the angular rates, @f$u@f$ the control torque and @f$w@f$ the disturbance torque.
  * 
+ * @see Filters::IIRFilter 
+ * 
+ * ## Working principle of the filter
+ *
+ * Almost every sensor is expected to produce readings that include some amount of noise that 
+ * compromises its' readings to some extent. 
+ *
+ * IIR Filter is a structure much simplier than earlier described Kalman filter that can be used to easily 
+ * implement low, high and band pass filters. These forms of digital signal procesing are commonly used and can 
+ * dramaticaly improve  data aqusition. 
+ * 
+ * ##Initialisation 
+ * IIR filter is initialised by IIR filter coeficients. Unfortunately coefitient generation is not part of this 
+ * library yet. In order to generate IIR filter coefficients python scipy.signal library is recomended. The output 
+ * is filtered stream of data if placed in a loop. Example can be seen in Detumbling_Test.cpp.  
+ * 
+ *More about IIR filter at: https://en.wikipedia.org/wiki/Infinite_impulse_response
+ *
  * # Example code
  * 
  * @see Filters.test.cpp
@@ -208,5 +226,81 @@ private:
     Matrix _kalman_r;   /**< Sensor noise covariance */
 
 }; // class KalmanFilter
+
+
+
+class IIRFilter{
+public: 
+// Constructors
+    /**
+     * @brief
+     * Default constructor for the Infinite Impulese Response filter class
+     */
+    IIRFilter();
+
+    /**
+     * @brief
+     * Initialize the IIR filter with the IIR Filter coeficients
+     * @param A1   The feedback gain coefficient 
+     * @param A2   Second feedback coefficient  
+     * @param B0   First feed forward coefficient 
+     * @param B1   Second feed forward coefficient 
+     * @param B2   Third  feed forward coefficient 
+     * @param w_init        The initial angular rates
+     */
+    IIRFilter(float A1, float A2, float B0, float B1, float B2);
+
+    void ResetFilter();
+
+    ~IIRFilter(void);
+
+    /**
+     * @brief
+     * Fetched the input accumulator value 
+     * @return the input accumulator value 
+     */
+    Matrix getAccumulatorIN() const;
+    
+    /**
+     * @brief
+     * Fetched the output of the IIR Filter 
+     * @return the output of the IIR Filter
+     */
+    Matrix getAccumulatorOUT() const;
+    
+    /**
+     * @brief
+     * Fetched the value of input accumulator one time step ago 
+     * @return the value of input accumulator one time step ago 
+     */
+    Matrix getDelay1() const;
+    
+    /**
+     * @brief
+     * Fetched the value just before second accumulator 
+     * @return the value just before second accumulator 
+     */
+    Matrix getDelay2() const;
+
+    /**
+     * @brief
+     * Perform the IIR Filter and calculate new values for input accumulator, output accumulator, delay1 and delay2. 
+     * @return The value of output accumulator 
+     */
+    Matrix Filter(Matrix InPut, Matrix AccumulatorIN_previous,  Matrix Delay1_previous, Matrix Delay2_previous);
+
+private: 
+    Matrix AccumulatorIN; //Input accumulator 
+    Matrix AccumulatorOUT; //Output accumulator 
+    Matrix Dat_Input; // Input to the IIR filter 
+    Matrix Delay1; // Input acumulator after one time step 
+    Matrix Delay2; // Input acumulator after two time steps 
+
+    float _A1;
+    float _A2;
+    float _B0;
+    float _B1;
+    float _B2;
+};
 }; // namespace Filters
 #endif // FILTERS_H

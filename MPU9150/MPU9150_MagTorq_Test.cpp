@@ -1,14 +1,14 @@
 /**
- * @file MPU9150.test.cpp
+ * @file MPU9150_MagTorq_test.cpp
  * @version 1.0
  * @date 2019
- * @author Remy CHATEL
+ * @author Remy CHATEL & Patrik Pauliny
  * @copyright GNU Public License v3.0
  * 
  * @brief
- * Source code for MPU9150.test.h
+ * Source code for MPU9150.MagTorq.test.h
  * 
- * @see MPU9150.test.h
+ * @see MPU9150.MagTorq.test.h
  * 
  * # License
  * <b>(C) Copyright 2019 Remy CHATEL</b>
@@ -22,9 +22,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "MPU9150.test.h"
+#include "MPU9150.MagTorq.test.h"
+#include "mbed.h"
 
-int MPU9150Test(){
+int MPU9150MagTorqTest(){
     I2C i2c(I2C_SDA, I2C_SCL);
     i2c.frequency(400000);
     MPU9150 imu(&i2c);
@@ -71,8 +72,8 @@ int MPU9150Test(){
 
         //--------------------- LOOP ---------------------//
         if(imu.readByte(MPU9150_ADDRESS, INT_STATUS) & 0x01) {  // On interrupt, check if data ready interrupt
-            imu.getAccel(val_acc);  // Read the x/y/z adc values
-            imu.getGyro(val_gyr);  // Read the x/y/z adc values
+           // imu.getAccel(val_acc);  // Read the x/y/z adc values
+            //imu.getGyro(val_gyr);  // Read the x/y/z adc values
 
             mcount++;
             if (mcount > 200/MagRate) {  // this is a poor man's way of setting the magnetometer read rate (see below) 
@@ -87,28 +88,19 @@ int MPU9150Test(){
         //-------------------- PRINT ---------------------//
 
         Matrix grav(3,1, val_acc);
-        grav /= grav.norm();
+        //grav /= grav.norm();
         Matrix mag(3,1, val_mag);
         Matrix magNED(3,1);
         magNED << 17.3186f << -.6779f << 46.8663f;
         
         if(t.read_ms() - print_update > 500){
             print_update = t.read_ms();
-            printf("\n\r\n\rLoop time %d us | Frequency %4.0f Hz\n\r", ellapsed, 1000000.0f/ellapsed);
-            printf("Acc (mg):  ");
-            printf("{% 4.2f, % 4.2f, % 4.2f}\n\r", val_acc[0]*1000, val_acc[1]*1000, val_acc[2]*1000);
-            printf("Gyr (deg/s): ");
-            printf("{% 4.2f, % 4.2f, % 4.2f}\n\r", val_gyr[0], val_gyr[1], val_gyr[2]);
-            printf("Mag (uT):  ");
-            printf("{% 4.2f, % 4.2f, % 4.2f}\n\r", val_mag[0], val_mag[1], val_mag[2]);
+            printf("%f\t%f\t%f\n", val_mag[0], val_mag[1], val_mag[2]);
 
-            mag.Transpose().print();
-            magNED.Transpose().print();
             
             mag /= mag.norm();
             magNED /= magNED.norm();
-            mag.Transpose().print();
-            magNED.Transpose().print();
+            
         }
 
         if(t.read_ms() > 1<<21) {
